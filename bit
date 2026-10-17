@@ -1,0 +1,62 @@
+
+template <typename T>
+struct BIT
+{
+    int n;
+    vector<T> bit;
+    BIT(int _n) : n(_n), bit(_n + 1, 0) {}
+
+    void add(int index, T value)
+    {
+        index++;
+        while (index <= n)
+        {
+            bit.at(index) += value;
+            index += (index & -index);
+        }
+    }
+
+    T sum(int index)
+    {
+        T ans = 0;
+        while (index > 0)
+        {
+            ans += bit.at(index);
+            index -= (index & -index);
+        }
+        return ans;
+    }
+
+    T at(int index)
+    {
+        return sum(index + 1) - sum(index);
+    }
+
+    void update(int index, T value)
+    {
+        add(index, value - at(index));
+    }
+
+    int sum_lower_bound(T target)
+    {
+        if (target <= 0)
+            return 0;
+
+        int len = 1;
+        while (len <= n)
+            len <<= 1;
+        len >>= 1;
+
+        int ans = 0;
+        while (len > 0)
+        {
+            if (n >= ans + len && bit.at(ans + len) < target)
+            {
+                target -= bit.at(ans + len);
+                ans += len;
+            }
+            len >>= 1;
+        }
+        return ans;
+    }
+};
