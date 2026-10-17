@@ -1,0 +1,11 @@
+for (auto v : dp)
+{
+    for (auto val : v)
+    {
+        if (val == inf)
+            cout << "* ";
+        else
+            cout << val << " ";
+    }
+    cout << endl;
+}
