@@ -1,0 +1,29 @@
+vector<ll> dijkstra (ll index) {
+  using q_pair = pair<ll, ll>;
+  
+  ll n = g.size();
+  vector<ll> dist(n, inf);
+  dist.at(index) = 0;
+  
+  priority_queue<q_pair, vector<q_pair>, greater<q_pair>> q;
+  q.push(q_pair(0, index));
+  
+  while(!q.empty()) {
+    q_pair cur = q.top();
+    q.pop();
+    ll cur_dist = cur.first;
+    ll cur_index = cur.second;
+    if(cur_dist > dist.at(cur_index)) continue;
+    
+    for(auto &edge:g.at(cur_index)) {
+      ll candi = cur_dist + edge.cost;
+      if(dist.at(edge.to) > candi) {
+        dist.at(edge.to) = candi;
+        q.push(q_pair(candi, edge.to));
+      }
+    }
+    
+  }
+  
+  return dist;
+}
