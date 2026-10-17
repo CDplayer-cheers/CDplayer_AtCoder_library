@@ -1,0 +1,51 @@
+int lis_len(vector<int> &list) {
+  if(list.size()==0) return 0;
+
+  vector<int> seq(0);
+  for(int value:list) {
+    auto replace = lower_bound(all(seq),value);
+    if(replace==seq.end()) {
+      seq.push_back(value);
+    } else {
+      *replace = value;
+    }
+  }
+  return seq.size();
+}
+
+vector<int> lis_index(vector<int> &list) {
+  if(list.size()==0) return {};
+
+  vector<int> seq(0);
+  vector<int> seq_index(0);
+  vector<int> parent(list.size(), -1);
+  rep(i, list.size()) {
+    int value = list.at(i);
+    
+    auto replace = lower_bound(all(seq),value);
+    int pos = replace - seq.begin();
+    
+    if(replace==seq.end()) {
+      seq.push_back(value);
+      seq_index.push_back(i);
+    } else {
+      *replace = value;
+      seq_index.at(pos) = i;
+    }
+    
+    if(pos > 0) {
+      parent.at(i) = seq_index.at(pos-1);
+    }
+  }
+  
+  vector<int> seq_index_trace(0);
+  int c_index = seq_index.back();
+  while(c_index != -1) {
+    seq_index_trace.push_back(c_index);
+    c_index = parent.at(c_index);
+  }
+  
+  reverse(all(seq_index_trace));
+  
+  return seq_index_trace;
+}
