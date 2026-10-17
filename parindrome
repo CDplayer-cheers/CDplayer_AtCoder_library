@@ -1,0 +1,62 @@
+auto longest_parindrome(string &str) {
+  ll n = str.size();
+  vector<ll> longest(2*n-1);
+  ll ans = -1;
+  ll ans_c = -1;
+  ll head_l = -1;
+  ll head_c = -1;
+  ll head_r = -1;
+  
+  rep(i, 2*n-1) {
+    ll l, r;
+    bool flag = false;
+    
+    if(head_c == -1 || head_r <= i) {
+      l = (i + 1) / 2 - 1;
+      r = i / 2 + 1;
+    } else {
+      ll mirror_c = 2 * head_c - i;
+      ll mirror_l = mirror_c - longest.at(mirror_c);
+      ll mirror_r = mirror_c + longest.at(mirror_c);
+      
+      if(head_l < mirror_l) {
+        longest.at(i) = longest.at(mirror_c);
+        flag = true;
+      } else if (mirror_l < head_l) {
+        longest.at(i) = mirror_c - head_l;
+        flag = true;
+      } else {
+        r = head_r / 2 + 1;
+        l = r - longest.at(mirror_c) - 1;
+      }
+    }
+    
+    if(flag) {
+      if(i + longest.at(i) > head_r) {
+        head_c = i;
+        head_l = i - longest.at(i);
+        head_r = i + longest.at(i);
+      }
+      continue;
+    }
+    
+    while(0 <= l && r < n && str.at(l) == str.at(r)) {
+      l--;
+      r++;
+    }
+    
+    longest.at(i) = r - l - 1;
+    if(ans < longest.at(i)) {
+      ans = longest.at(i);
+      ans_c = i;
+    }
+  }
+  
+  /*
+  string a = "";
+  repb(i, (ans_c - ans) / 2 + 1, (ans_c + ans) / 2 + 1) a += str.at(i);
+  return a;
+  */
+  
+  return ans;
+}
