@@ -1,0 +1,159 @@
+bool prints(const int x, bool root = true);
+bool prints(const ll x, bool root = true);
+bool prints(const string &s, bool root = true);
+bool prints(const char c, bool root = true);
+template <typename T, typename U>
+bool prints(const pair<T, U> &p, bool root = true);
+template <typename T, typename U, typename V>
+bool prints(const tuple<T, U, V> &p, bool root = true);
+template <typename T>
+auto prints(const T &l, bool root = true) -> decltype(begin(l), bool());
+template <typename T, typename U>
+bool prints(const map<T, U> &m, bool root = true);
+template <typename T>
+bool prints(const priority_queue<T> &s, bool root = true);
+template <typename T>
+bool prints(const queue<T> &s, bool root = true);
+template <typename T>
+bool prints(const stack<T> &s, bool root = true);
+
+bool prints(const int x, bool root)
+{
+    if (x == inf)
+        cout << "*";
+    else
+        cout << x;
+    if (root)
+        cout << endl;
+    return false;
+}
+bool prints(const ll x, bool root)
+{
+    if (x == inf)
+        cout << "*";
+    else
+        cout << x;
+    if (root)
+        cout << endl;
+    return false;
+}
+bool prints(const string &s, bool root)
+{
+    cout << s;
+    if (root)
+        cout << endl;
+    return false;
+}
+bool prints(const char c, bool root)
+{
+    cout << c;
+    if (root)
+        cout << endl;
+    return false;
+}
+template <typename T, typename U>
+bool prints(const pair<T, U> &p, bool root)
+{
+    bool isLong1 = prints(p.first, false);
+    cout << ",";
+    if (isLong1)
+        cout << endl;
+    bool isLong2 = prints(p.second, false);
+    if (root)
+        cout << endl;
+    return isLong1 || isLong2;
+}
+template <typename T, typename U, typename V>
+bool prints(const tuple<T, U, V> &t, bool root)
+{
+    bool isLong1 = prints(get<0>(t), false);
+    cout << ",";
+    if (isLong1)
+        cout << endl;
+    bool isLong2 = prints(get<0>(t), false);
+    cout << ",";
+    if (isLong2)
+        cout << endl;
+    bool isLong3 = prints(get<0>(t), false);
+    return isLong1 || isLong2 || isLong3;
+}
+template <typename T>
+auto prints(const T &l, bool root) -> decltype(begin(l), bool())
+{
+    repl(i, val, l)
+    {
+        bool isLong = prints(val, false);
+        if (isLong)
+            cout << endl;
+        else if (i != l.size() - 1)
+            cout << " ";
+    }
+    if (root)
+        cout << endl;
+    return true;
+}
+template <typename T, typename U>
+bool prints(const map<T, U> &m, bool root)
+{
+    for (auto val : m)
+    {
+        bool isLong = prints(val.first, false);
+        cout << ":";
+        if (isLong)
+            cout << endl;
+        prints(val.second, false);
+        cout << endl;
+    }
+    return true;
+}
+template <typename T>
+bool prints(const priority_queue<T> &q, bool root)
+{
+    auto cq = q;
+    while (!cq.empty())
+    {
+        bool isLong = prints(cq.top(), false);
+        cq.pop();
+        if (isLong)
+            cout << endl;
+        else if (!cq.empty())
+            cout << " ";
+    }
+    if (root)
+        cout << endl;
+    return true;
+}
+template <typename T>
+bool prints(const queue<T> &q, bool root)
+{
+    auto cq = q;
+    while (!cq.empty())
+    {
+        bool isLong = prints(cq.front(), false);
+        cq.pop();
+        if (isLong)
+            cout << endl;
+        else if (!cq.empty())
+            cout << " ";
+    }
+    if (root)
+        cout << endl;
+    return true;
+}
+template <typename T>
+bool prints(const stack<T> &q, bool root)
+{
+    auto cq = q;
+    while (!cq.empty())
+    {
+        bool isLong = prints(cq.top(), false);
+        cq.pop();
+        if (isLong)
+            cout << endl;
+        else if (!cq.empty())
+            cout << " ";
+    }
+    if (root)
+        cout << endl;
+    return true;
+}
