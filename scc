@@ -1,0 +1,79 @@
+vector<vector<int>> scc()
+{
+    int n = g.size();
+    vector<bool> visited(n, false);
+    stack<int> v;
+    int c_label = 0;
+
+    stack<pair<int, bool>> s;
+
+    rep(i, n)
+    {
+        if (visited.at(i))
+            continue;
+
+        s.push(pair(i, false));
+
+        while (!s.empty())
+        {
+            auto c = s.top();
+            s.pop();
+
+            if (c.second)
+            {
+                v.push(c.first);
+                // cout << c.first << " ";
+            }
+            else
+            {
+                if (visited.at(c.first))
+                    continue;
+
+                visited.at(c.first) = true;
+
+                s.push(pair(c.first, true));
+                for (auto edge : g.at(c.first))
+                {
+                    s.push(pair(edge.to, false));
+                }
+            }
+        }
+    }
+
+    vector ans(0, vector<int>(0));
+    vector<bool> decomposed(n, false);
+
+    while (!v.empty())
+    {
+        int c_v = v.top();
+        v.pop();
+
+        if (decomposed.at(c_v))
+            continue;
+
+        vector<int> component(0);
+        stack<int> s;
+        s.push(c_v);
+
+        while (!s.empty())
+        {
+            int c = s.top();
+            s.pop();
+
+            if (decomposed.at(c))
+                continue;
+
+            component.push_back(c);
+            decomposed.at(c) = true;
+
+            for (auto edge : gr.at(c))
+            {
+                s.push(edge.to);
+            }
+        }
+
+        ans.push_back(component);
+    }
+
+    return ans;
+}
