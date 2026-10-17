@@ -1,0 +1,96 @@
+template <typename T>
+struct Segtype
+{
+    function<T(T, T)> op;
+    T e;
+    Segtype(function<T(T, T)> _fx, T _ex) : op(_fx), e(_ex) {}
+};
+
+template <typename T>
+struct segtree
+{
+    int n;
+    function<T(T, T)> op;
+    T e;
+    vector<T> tree;
+    segtree(int _n, Segtype<T> segtype) : op(segtype.op), e(segtype.e), tree(_n * 4, e)
+    {
+        int x = 1;
+        while (_n > x)
+        {
+            x *= 2;
+        }
+        n = x;
+    }
+
+    // 初期値をsetで入力していき、buildで木を構築する
+    void set(int index, T value)
+    {
+        tree.at(index + n - 1) = value;
+    }
+    void build()
+    {
+        reps(i, n - 2, -1, -1)
+        {
+            tree.at(i) = op(tree.at(2 * i + 1), tree.at(2 * i + 2));
+        }
+    }
+
+    void update(int index, T value)
+    {
+        index += n - 1;
+        tree[index] = value;
+        while (index > 0)
+        {
+            index = (index - 1) / 2;
+            tree.at(index) = op(tree.at(index * 2 + 1), tree.at(index * 2 + 2));
+        }
+    }
+
+    T query(int l, int r)
+    {
+        return query_sub(l, r, 0, 0, n);
+    }
+    T query_sub(int range_l, int range_r, int k, int l, int r)
+    {
+        if (r <= range_l || range_r <= l)
+        {
+            return e;
+        }
+        else if (range_l <= l && r <= range_r)
+        {
+            return tree.at(k);
+        }
+        else
+        {
+            T value_l = query_sub(range_l, range_r, k * 2 + 1, l, (l + r) / 2);
+            T value_r = query_sub(range_l, range_r, k * 2 + 2, (l + r) / 2, r);
+            return op(value_l, value_r);
+        }
+    }
+
+    T at(int index)
+    {
+        return query(index, index + 1);
+    }
+};
+template <typename T>
+const Segtype<T> segtype_min{
+    [](T x1, T x2) -> T
+    { return min(x1, x2); },
+    numeric_limits<T>::max()};
+template <typename T>
+const Segtype<T> segtype_max{
+    [](T x1, T x2) -> T
+    { return max(x1, x2); },
+    numeric_limits<T>::lowest()};
+template <typename T>
+const Segtype<T> segtype_and{
+    [](T x1, T x2) -> T
+    { return x1 & x2; },
+    ~((T)0)};
+template <typename T>
+const Segtype<T> segtype_or{
+    [](T x1, T x2) -> T
+    { return x1 | x2; },
+    0};
