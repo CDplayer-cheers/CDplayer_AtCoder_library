@@ -1,0 +1,6 @@
+ll sq_nat(ll n) {
+  ll sq = sqrt(n);
+  while(sq * sq > n) sq--;
+  while((sq+1)*(sq+1) <= n) sq++;
+  return sq;
+}
