@@ -1,0 +1,186 @@
+template <typename T, typename U>
+struct Lazy_segtype
+{
+    function<T(T, T)> op;
+    T e;
+    function<T(T, U, int)> mapping; // intはそのsegmentの長さ
+    function<U(U, U)> composition;
+    U id;
+};
+
+template <typename T, typename U>
+struct lazy_segtree
+{
+    int n;
+    function<T(T, T)> op;
+    T e;
+    function<T(T, U, int)> mapping;
+    function<U(U, U)> composition;
+    U id;
+    vector<T> tree;
+    vector<U> lazy;
+    lazy_segtree(int _n, Lazy_segtype<T, U> lazy_segtype)
+        : op(lazy_segtype.op), e(lazy_segtype.e), mapping(lazy_segtype.mapping), composition(lazy_segtype.composition), id(lazy_segtype.id),
+          tree(_n * 4, e), lazy(_n * 4, id)
+    {
+        int x = 1;
+        while (_n > x)
+        {
+            x *= 2;
+        }
+        n = x;
+    }
+
+    // 初期値をsetで入力していき、buildで木を構築する
+    void set(int index, T value)
+    {
+        tree.at(index + n - 1) = value;
+    }
+    void build()
+    {
+        reps(i, n - 2, -1, -1)
+        {
+            tree.at(i) = op(tree.at(2 * i + 1), tree.at(2 * i + 2));
+        }
+    }
+
+    void lazy_evaluation(int k, int len)
+    {
+        if (lazy.at(k) == id)
+            return;
+        if (k < n - 1)
+        {
+            lazy.at(k * 2 + 1) = composition(lazy.at(k * 2 + 1), lazy.at(k));
+            lazy.at(k * 2 + 2) = composition(lazy.at(k * 2 + 2), lazy.at(k));
+        }
+        tree.at(k) = mapping(tree.at(k), lazy.at(k), len);
+        lazy.at(k) = id;
+    }
+
+    void update(int l, int r, U value)
+    {
+        update_sub(l, r, value, 0, 0, n);
+    }
+    void update_sub(int range_l, int range_r, U value, int k, int l, int r)
+    {
+        lazy_evaluation(k, r - l);
+        if (range_l <= l && r <= range_r)
+        {
+            lazy.at(k) = composition(lazy.at(k), value);
+            lazy_evaluation(k, r - l);
+        }
+        else if (range_l < r && l < range_r)
+        {
+            update_sub(range_l, range_r, value, k * 2 + 1, l, (l + r) / 2);
+            update_sub(range_l, range_r, value, k * 2 + 2, (l + r) / 2, r);
+            tree.at(k) = op(tree.at(k * 2 + 1), tree.at(k * 2 + 2));
+        }
+    }
+
+    T query(int l, int r)
+    {
+        return query_sub(l, r, 0, 0, n);
+    }
+    T query_sub(int range_l, int range_r, int k, int l, int r)
+    {
+        lazy_evaluation(k, r - l);
+        if (r <= range_l || range_r <= l)
+        {
+            return e;
+        }
+        else if (range_l <= l && r <= range_r)
+        {
+            return tree.at(k);
+        }
+        else
+        {
+            T value_l = query_sub(range_l, range_r, k * 2 + 1, l, (l + r) / 2);
+            T value_r = query_sub(range_l, range_r, k * 2 + 2, (l + r) / 2, r);
+            return op(value_l, value_r);
+        }
+    }
+
+    T at(int index)
+    {
+        return query(index, index + 1);
+    }
+
+    void print()
+    {
+        rep(i, n)
+        {
+            cout << at(i);
+            if (i == n - 1)
+                cout << endl;
+            else
+                cout << " ";
+        }
+    }
+};
+template <typename T>
+constexpr T plus_inf = numeric_limits<T>::max();
+template <typename T>
+constexpr T minus_inf = numeric_limits<T>::lowest();
+template <typename U>
+constexpr U id = numeric_limits<U>::max();
+
+template <typename T>
+const Lazy_segtype<T, T> lazy_segtype_min_update{
+    [](T x1, T x2) -> T
+    { return min(x1, x2); },
+    plus_inf<T>,
+    [](T x, T m, int len) -> T
+    { return (m == id<T> ? x : m); },
+    [](T m1, T m2) -> T
+    { return (m2 == id<T> ? m1 : m2); },
+    id<T>};
+template <typename T>
+const Lazy_segtype<T, T> lazy_segtype_max_update{
+    [](T x1, T x2) -> T
+    { return max(x1, x2); },
+    minus_inf<T>,
+    [](T x, T m, int len) -> T
+    { return (m == id<T> ? x : m); },
+    [](T m1, T m2) -> T
+    { return (m2 == id<T> ? m1 : m2); },
+    id<T>};
+template <typename T>
+const Lazy_segtype<T, T> lazy_segtype_sum_update{
+    [](T x1, T x2) -> T
+    { return x1 + x2; },
+    0,
+    [](T x, T m, int len) -> T
+    { return (m == id<T> ? x : m * len); },
+    [](T m1, T m2) -> T
+    { return (m2 == id<T> ? m1 : m2); },
+    id<T>};
+template <typename T>
+const Lazy_segtype<T, T> lazy_segtype_min_add{
+    [](T x1, T x2) -> T
+    { return min(x1, x2); },
+    plus_inf<T>,
+    [](T x, T m, int len) -> T
+    { return x + m; },
+    [](T m1, T m2) -> T
+    { return m1 + m2; },
+    0};
+template <typename T>
+const Lazy_segtype<T, T> lazy_segtype_max_add{
+    [](T x1, T x2) -> T
+    { return max(x1, x2); },
+    minus_inf<T>,
+    [](T x, T m, int len) -> T
+    { return x + m; },
+    [](T m1, T m2) -> T
+    { return m1 + m2; },
+    0};
+template <typename T>
+const Lazy_segtype<T, T> lazy_segtype_sum_add{
+    [](T x1, T x2) -> T
+    { return x1 + x2; },
+    0,
+    [](T x, T m, int len) -> T
+    { return x + m * len; },
+    [](T m1, T m2) -> T
+    { return m1 + m2; },
+    0};
