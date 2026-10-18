@@ -33,7 +33,7 @@ struct Graph
      *                        { return val + cost; });
      */
     template <typename val_type>
-    auto dfs(int first_index, val_type first_value, function<val_type(int, val_type, ll)> f, function<void(int, val_type, val_type)> cross_visited = [](int index, val_type cur_val, val_type prev_val) {})
+    auto dfs(int first_index, val_type first_value, function<val_type(int, val_type, ll)> f, function<void(int, val_type)> not_visited = [](int index, val_type val) {}, function<void(int, val_type, val_type)> when_visited = [](int index, val_type cur_val, val_type prev_val) {})
     {
         vector<bool> visited(num_of_vertex);
         vector<val_type> ans(num_of_vertex);
@@ -47,11 +47,12 @@ struct Graph
 
             if (visited.at(c.first))
             {
-                cross_visited(c.first, c.second, ans.at(c.first));
+                when_visited(c.first, c.second, ans.at(c.first));
                 continue;
             }
             visited.at(c.first) = true;
             ans.at(c.first) = c.second;
+            not_visited(c.first, c.second);
 
             for (auto e : g.at(c.first))
                 task.push(make_pair(e.to, f(c.first, c.second, e.cost)));
